@@ -75,7 +75,7 @@ export function generateRpt(sql, entries = []) {
         b.ap('Columnas ' + entries.length + ';').csv(entries.map(e => 5)).ln()
         b.ap('Lista ').csv(entries.map(e => "'" + e.column + "'")).ln()
         b.ln('Mientras tConsulta->Encontro')
-        b.ap('    ').csv(entries.map(e => e.column).map(e => "tConsulta('" + e + "')")).ln()
+        b.ap('    Lista ').csv(entries.map(e => e.column).map(e => "tConsulta('" + e + "')")).ln()
         b.ln('    tConsulta.Busca Siguiente')
         b.ln('FinMientras')
         b.ln()
