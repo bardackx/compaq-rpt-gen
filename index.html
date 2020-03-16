@@ -1,0 +1,85 @@
+<style>
+    textarea {
+        display: block;
+        min-width: 100%;
+        max-width: 100%;
+        font-size: 11px;
+    }
+</style>
+
+<script>
+    function fit(/** @type {HTMLTextAreaElement} */ e) {
+        e.style.height = 'auto'
+        e.style.height = (e.scrollHeight + 3) + 'px';
+    }
+</script>
+
+<form>
+    <input id="file-input" type="file">
+    <button id="generate-button" type="button" onclick="">regenerar</button>
+</form>
+
+<label>Columnas</label>
+<textarea id="col-input" oninput="fit(this)"></textarea>
+<br>
+
+<label>SQL</label>
+<textarea id="sql-input" oninput="fit(this)"></textarea>
+<br>
+
+<label>RPT</label>
+<textarea id="rpt-output" oninput="fit(this)"></textarea>
+<br>
+
+<script type="module">
+
+    import { generateRpt } from "./sql-to-rpt.js";
+
+    let colInput = document.querySelector('#col-input');
+    let sqlInput = document.querySelector('#sql-input');
+    let fileInput = document.querySelector('#file-input');
+
+    let rptOutput = document.querySelector('#rpt-output');
+    let generateButton = document.querySelector("#generate-button")
+
+    function csvToArray(/** @type {string} */csv) {
+        return csv
+            .trim()
+            .replace(/\r/g, '')
+            .split('\n')
+            .map(e => e.trim().split(",").map(e => e.trim()))
+            .map(e => ({
+                column: e.length === 0 ? null : e[0],
+                header: e.length === 1 ? e[0] : e[1],
+                format: e.length === 2 ? null : e[2],
+            }));
+    }
+
+    function regenerateRpt() {
+        let col = colInput.value;
+        let sql = sqlInput.value;
+        let rpt = generateRpt(sql, csvToArray(col));
+        rptOutput.value = rpt;
+        fit(sqlInput)
+        fit(rptOutput)
+    }
+
+    generateButton.addEventListener('click', regenerateRpt)
+
+    function changed(e) {
+        /** @type {HTMLInputElement} */
+        let files = fileInput.files;
+        if (files.length == 1) {
+            let file = files[0];
+            let reader = new FileReader();
+            reader.onloadend = e => {
+                sqlInput.value = reader.result.replace(/\t/g, "    ");
+                regenerateRpt()
+            }
+            reader.readAsText(file);
+        }
+    }
+
+    fileInput.addEventListener('change', e => changed(e));
+
+</script>
