@@ -4,11 +4,15 @@
 https://bardackx.github.io/compaq-rpt-gen/
 
 ## Columnas
-En este textarea debe ir un CSV (donde la primer columna es el nombre de la columna del resultado de la consulta SQL y la segunda es el titulo de la columna en el reporte de salida que genera COMPAQ) como el siguiente
+En este textarea debe ir un CSV (donde la primer columna es el nombre de la columna del resultado de la consulta SQL, la segunda es el titulo de la columna en el reporte de salida que genera COMPAQ y la tercera es la función de formateo) como el siguiente
 ```
 col1, Columna uno
 col2, Columna dos
-dol3, Etcetera
+col3, 
+col4, 
+col5, Columna con fecha, YYYYMMDD
+dol6, Etcetera
+dol7, Etcetera
 ```
 ## SQL
 Aqui va la consulta SQL del reporte

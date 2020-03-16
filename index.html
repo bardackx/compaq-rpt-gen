@@ -1,5 +1,5 @@
 <h1>Compaq RPT-GEN</h1>
-<p>Versión 0.0.3</p>
+<p>Versión 0.0.4</p>
 
 <style>
     textarea {
@@ -23,7 +23,7 @@
 </form>
 
 <label>Columnas</label>
-<textarea id="col-input" oninput="fit(this)"></textarea>
+<textarea id="col-input" oninput="fit(this)">CCLAVESAT, Clave SAT, YYYYMMDD</textarea>
 <br>
 
 <label>SQL</label>
@@ -59,12 +59,16 @@
     }
 
     function regenerateRpt() {
-        let col = colInput.value;
-        let sql = sqlInput.value;
-        let rpt = generateRpt(sql, csvToArray(col));
-        rptOutput.value = rpt;
-        fit(sqlInput)
-        fit(rptOutput)
+        try {
+            let col = colInput.value;
+            let sql = sqlInput.value;
+            let rpt = generateRpt(sql, csvToArray(col));
+            rptOutput.value = rpt;
+            fit(sqlInput)
+            fit(rptOutput)
+        } catch (ex) {
+            alert(ex)
+        }
     }
 
     generateButton.addEventListener('click', regenerateRpt)

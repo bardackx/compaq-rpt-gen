@@ -49,7 +49,7 @@ export function generateRpt(sql, entries = []) {
     b.ln("gInstancia  = @parametroConsola('Instancia')")
     b.ln("gUsuarioSQL = @parametroConsola('NombreUsuario')")
     b.ln("gClaveSQL   = @parametroConsola('Clave')")
-    b.ln("pQueTipo    = @parametroConsola('QueTipo')")
+    // b.ln("pQueTipo    = @parametroConsola('QueTipo')") // que era esta cosa?
     b.ln();
 
     b.ln("// Conexión")
@@ -63,10 +63,25 @@ export function generateRpt(sql, entries = []) {
     // b.ln("FinParametros")
     // b.ln()
 
+    let shouldImportFunctions = entries.filter(e => e.format).length > 0;
+    if (shouldImportFunctions) {
+        b.ln('// Funciones')
+        b.ln('Incluye LibAdminPaq.rpt')
+        b.ln('Incluye LibCliProv.rpt')
+        b.ln()
+        b.ln('DefFunc fYYYYMMDD(argFecha)')
+        b.ln('    vYYYY = @substr(argFecha; 0; 4)')
+        b.ln('    vMM = @substr(argFecha; 4; 2)')
+        b.ln('    vDD = @substr(argFecha; 6; 2)')
+        b.ln("    vYYYYMMDD = vYYYY & '-' & vMM & '-' & vDD")
+        b.ln('    retorna vYYYYMMDD')
+        b.ln('FinFunc')
+        b.ln()
+    }
+
     let lines = sql.trim().replace(/\r/g, "").split('\n');
-    b.ln("// SQL del reporte (" + lines.length + ")")
+    b.ln("// SQL del reporte")
     b.ln("sql = ''")
-    //for (let line of lines)
     for (let i = 0; i < lines.length; i++) {
         // line jump as space (a lo mejor debería ser configurable)
         let line = lines[i]
@@ -80,10 +95,24 @@ export function generateRpt(sql, entries = []) {
     if (entries && entries.length) {
         b.ln('// Salida y columnas')
         b.ln('Consulta tConsulta = tEmpresa[sql]')
-        b.ap('Columnas ' + entries.length + ';').csv(entries.map(e => 5)).ln()
+        b.ap('Columnas ' + entries.length + ';').csv(entries.map(e => 4)).ln()
         b.ap('Lista ').csv(entries.map(e => "'" + e.column + "'")).ln()
         b.ln('Mientras tConsulta->Encontro')
-        b.ap('    Lista ').csv(entries.map(e => e.column).map(e => "tConsulta('" + e + "')")).ln()
+        b.ap('    Lista ').csv(
+            entries.map(e => {
+                let r = "tConsulta('" + e.column + "')";
+                if (e.format) {
+                    switch (e.format) {
+                        case 'YYYYMMDD':
+                            r = "fYYYYMMDD(" + r + ")";
+                            break;
+                        default:
+                            throw "Unknown format '" + e.format + "'"
+                    }
+                }
+                return r;
+            })
+        ).ln()
         b.ln('    tConsulta.Busca Siguiente')
         b.ln('FinMientras')
         b.ln()
