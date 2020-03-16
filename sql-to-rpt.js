@@ -56,22 +56,30 @@ export function generateRpt(sql, entries = []) {
     b.ln("Conexion tEmpresa = Conexion.crear('jdbc:jtds:sqlserver:' & gServidor & ';instance=' & gInstancia,gUsuarioSQL,gClaveSQL)")
     b.ln();
 
-    b.ln("// Parametros")
-    b.ln("Incluye LibParametros.rpt")
-    b.ln("Parametros")
-    b.ln("FinParametros")
-    b.ln()
+    // TODO
+    // b.ln("// Parametros")
+    // b.ln("Incluye LibParametros.rpt")
+    // b.ln("Parametros")
+    // b.ln("FinParametros")
+    // b.ln()
 
     let lines = sql.trim().replace(/\r/g, "").split('\n');
     b.ln("// SQL del reporte (" + lines.length + ")")
     b.ln("sql = ''")
-    for (let line of lines)
-        b.ln("sql = sql & '" + line + "' ")
+    //for (let line of lines)
+    for (let i = 0; i < lines.length; i++) {
+        // line jump as space (a lo mejor debería ser configurable)
+        let line = lines[i]
+        let sqlLineEndingCharacter = ''
+        if (!line.endsWith(" "))
+            sqlLineEndingCharacter = i === lines.length - 1 ? '' : ' ';
+        b.ln("sql = sql & '" + line + sqlLineEndingCharacter + "'")
+    }
     b.ln()
 
     if (entries && entries.length) {
         b.ln('// Salida y columnas')
-        b.ln('Consulta tConsulta = tEmpresa[qReporte]')
+        b.ln('Consulta tConsulta = tEmpresa[sql]')
         b.ap('Columnas ' + entries.length + ';').csv(entries.map(e => 5)).ln()
         b.ap('Lista ').csv(entries.map(e => "'" + e.column + "'")).ln()
         b.ln('Mientras tConsulta->Encontro')
